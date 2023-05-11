@@ -2,7 +2,7 @@
 
 This application demonstrates the simple setup and initalisation of an dotnet core based OpenTelemetry console application, and then generates some dummy data Open Telemtery traces, which can be configured to send to your collection of choice, such as Honeycomb and/or Jaeger.
 
-This application has a number command line arguments to enable this use;
+This application has a number of command line arguments that it takes, to enable this use;
 
 arg1
 Endpoint to your collector, such as https://api.honeycomb.io:443
