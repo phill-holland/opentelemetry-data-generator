@@ -2,6 +2,20 @@
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using System.Net;
+using System.Runtime.ExceptionServices;
+
+static void FirstChanceExceptionHandler(object sender, FirstChanceExceptionEventArgs args)
+{
+    var activity = Activity.Current;
+
+    while(activity != null)
+    {
+        activity.RecordException(args.Exception);
+        activity.SetStatus(Status.Error);
+        activity.Dispose();
+        activity = activity.Parent;
+    }
+}
 
 string endPoint = "https://api.honeycomb.io:443";
 string apiKey = "MyApiKey";
@@ -53,7 +67,7 @@ using var tracerProvider = OpenTelemetry.Sdk.CreateTracerProviderBuilder()
 
 Tracer tracer = tracerProvider.GetTracer(serviceName);
 
-const int iterations = 50;
+const int iterations = 10;
 
 string []words = { "banana", "giraffe", "cheese", "monkey", "cat", "badger", "apple" };
 for(int i = 0; i < iterations; ++i)
@@ -70,3 +84,7 @@ for(int i = 0; i < iterations; ++i)
         await client.GetAsync("http://www.google.co.uk/search?q=" + words[i % words.Length]);
     }
 }
+
+AppDomain.CurrentDomain.FirstChanceException += FirstChanceExceptionHandler;
+
+throw new Exception("oh dear! oh no!");
